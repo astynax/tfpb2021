@@ -1,0 +1,22 @@
+cabal-version:      3.0
+name:               tfpb2021
+version:            0.1.0.0
+synopsis:           Haskell learning group sandbox
+category:           Education
+description:        A sandbox for the TFPB2021 group of Haskell learners
+
+homepage:           https://github.com/astynax/tfpb2021
+
+copyright:          Aleksei Pirogov, 2021
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Aleksei Pirogov
+maintainer:         astynax@users.noreply.github.com
+
+common deps
+    default-language: Haskell2010
+    build-depends:    base ^>=4.14.3.0
+
+executable tfpb2021
+    import: deps
+    main-is:          Main.hs

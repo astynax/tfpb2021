@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Lesson02</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style>
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" title="1"><span class="ot">{-# OPTIONS -Wall #-}</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="ot">{-# LANGUAGE StandaloneKindSignatures #-}</span></a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="ot">{-# LANGUAGE TypeOperators #-}</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">module</span> <span class="dt">Lesson02</span> <span class="kw">where</span></a></code></pre></div>
+<h1 id="урок-2.-алгебраические-типы-данных">Урок №2. Алгебраические типы данных</h1>
+<p>Выше включаются парочка расширений и отображение предупреждений.</p>
+<p><code>StandaloneKindSignatures</code> позволяет указывать типы для конструкторов типов (см ниже). А <code>TypeOperators</code> позволяет давать конструкторам типов (и значений) имена в виде инфиксных операторов (ниже так же будет пример).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">import</span> <span class="dt">GHC.Types</span> (<span class="dt">Type</span>)</a></code></pre></div>
+<p><code>Type</code> означает некий тип, который не нужно дальше достраивать, добавляя к нему типы-параметры. Обычно нам не нужно описывать типы типов, поэтому и импортировать <code>Type</code> не приходится. Я же <code>Type</code> использую для наглядности.</p>
+<p>Пользовательские типы в Haskell объявляются с помощью ключевого слова <code>data</code>, после которого идёт <em>конструктор типа</em> с параметрами или без, затем следует символ равенства и один или несколько <em>конструкторов данных</em>, также с параметрами или без. Вот простейший пример:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">type</span> <span class="dt">Unit</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="co">-- это уже &quot;конечный&quot; тип</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="kw">data</span> <span class="dt">Unit</span> <span class="ot">=</span> <span class="dt">Unit</span></a></code></pre></div>
+<p>Конструктор типа тут не имеет параметров, а значит это уже конечный тип. Значение у типа ровно одно, так что конструктор значений означает сам себя. Так как значение ровно одно, то и информации никакой это значение не несёт.</p>
+<p>Заметьте, что пространство имён для типов и пространство имён для значений не пересекаются, что позволяет иметь одинаковые имена конструктору типов и конструктору значений.</p>
+<p>У Haskell уже есть готовый тип с одним значением. Называют его так же “unit”, но пишется он покороче:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">data</span> () <span class="ot">=</span> ()</a></code></pre></div>
+<p>Тогда как конструктор типа всегда должен присутствовать, конструкторов значений может и не быть. Такие типы без значений называют <em>незаселёнными</em> (uninhabitated).</p>
+<p>Вот вам пример:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">type</span> <span class="dt">Void&#39;</span><span class="ot"> ::</span> <span class="dt">Type</span>  <span class="co">-- тип есть</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="kw">data</span> <span class="dt">Void&#39;</span>  <span class="co">-- значений нет!</span></a></code></pre></div>
+<p>Такой тип может быть полезен, например, когда, когда мы знаем, что вычисление некоторого выражения никогда не завершится или гарантировано завершится с ошибкой: вычислить Void’ не получится — значений-то нет!</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" title="1"><span class="ot">looped ::</span> <span class="dt">Void&#39;</span></a>
+<a class="sourceLine" id="cb7-2" title="2">looped <span class="ot">=</span> looped <span class="co">-- эта функция зацикливается, поэтому можно использовать Void&#39;</span></a></code></pre></div>
+<h2 id="типы-произведения">Типы-произведения</h2>
+<p>Это такие составные типы данных, значения которых <em>одновременно</em> содержат несколько вложенных значений и описывают некоторую осмысленную сложную сущность. Количество значений (“мощность”) составного типа равна декартовому произведению мощностей вложенных типов.</p>
+<p>Скажем, RGB-цвет является осмысленной совокупностью трёх чисел:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">data</span> <span class="dt">RGB</span> <span class="ot">=</span> <span class="dt">RGB</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="dt">Int</span> <span class="co">-- тут лучше бы взять Word8, но путь будет Int</span></a></code></pre></div>
+<p>Количество возможных цветов здесь будет равно произведению трёх количеств значений типа Int.</p>
+<p>Конструкторы значений могут выступать в роли функций, принимающих значения <em>полей</em> по одному, пока не получится итоговое составное значение:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" title="1"><span class="co">-- В REPL команда &quot;:t RGB&quot; покажет</span></a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">-- RGB :: Int -&gt; Int -&gt; Int -&gt; RGB</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="ot">blueish ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">RGB</span></a>
+<a class="sourceLine" id="cb9-4" title="4">blueish <span class="ot">=</span> <span class="dt">RGB</span> <span class="dv">0</span> <span class="dv">0</span> <span class="co">-- частично применили</span></a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" title="1"><span class="ot">blues ::</span> [<span class="dt">RGB</span>]</a>
+<a class="sourceLine" id="cb10-2" title="2">blues <span class="ot">=</span> [blueish <span class="dv">100</span>, blueish <span class="dv">150</span>, blueish <span class="dv">200</span>]</a></code></pre></div>
+<p>Но не нужно думать о том, что конструкторы значений это просто функции. Конструкторы позволяют ещё и деконструировать значения, например, при использовании pattern matching:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" title="1"><span class="ot">isBlueish ::</span> <span class="dt">RGB</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb11-2" title="2">isBlueish (<span class="dt">RGB</span> <span class="dv">0</span> <span class="dv">0</span> _) <span class="ot">=</span> <span class="dt">True</span></a>
+<a class="sourceLine" id="cb11-3" title="3">isBlueish _           <span class="ot">=</span> <span class="dt">False</span></a></code></pre></div>
+<p>А вот пример произведения типа-произведения с параметром:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">type</span> <span class="dt">Pair</span><span class="ot"> ::</span> <span class="dt">Type</span> <span class="ot">-&gt;</span> <span class="dt">Type</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">data</span> <span class="dt">Pair</span> a <span class="ot">=</span> <span class="dt">Pair</span> a a</a></code></pre></div>
+<p>Заметьте, что “тип типа” выглядит как тип функции. Так получается потому, что конструктор типов <code>Pair</code> имеет параметр — типовую переменную <code>a</code>. И конечный тип можно получить, только указав тип-параметр:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" title="1"><span class="ot">pairOfBooleans ::</span> <span class="dt">Pair</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb13-2" title="2">pairOfBooleans <span class="ot">=</span> <span class="dt">Pair</span> <span class="dt">True</span> <span class="dt">False</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" title="1"><span class="ot">pairOfNums ::</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Pair</span> a</a>
+<a class="sourceLine" id="cb14-2" title="2">pairOfNums <span class="ot">=</span> <span class="dt">Pair</span> <span class="dv">1</span> <span class="dv">2</span></a></code></pre></div>
+<p>Обратите внимание, что во втором примере подстановка переменной <code>a</code> в качестве параметра для <code>Pair</code>, это применение конструктора типов, пусть и оставляющее итоговый тип полиморфным!</p>
+<p>Встроенные в Haskell кортежи имеют свой собственный синтаксис, но в целом это всего лишь произведения с количеством аргументов, равным количеству вкладываемых типов:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" title="1"><span class="ot">center ::</span> (<span class="dt">Int</span>, <span class="dt">Int</span>)</a>
+<a class="sourceLine" id="cb15-2" title="2">center <span class="ot">=</span> (<span class="dv">0</span>, <span class="dv">0</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" title="1"><span class="ot">cartItem ::</span> (<span class="dt">String</span>, <span class="dt">Int</span>, <span class="dt">Float</span>) <span class="co">-- наименование, количество, цена</span></a>
+<a class="sourceLine" id="cb16-2" title="2">cartItem <span class="ot">=</span> (<span class="st">&quot;apple&quot;</span>, <span class="dv">2</span>, <span class="fl">12.5</span>)</a></code></pre></div>
+<p>Конструктор типа-произведения можно описывать в виде так называемой записи/record, давай полям имена:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">data</span> <span class="dt">CMYK</span> <span class="ot">=</span> <span class="dt">CMYK</span></a>
+<a class="sourceLine" id="cb17-2" title="2">  {<span class="ot"> cyan    ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb17-3" title="3">  ,<span class="ot"> magenta ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb17-4" title="4">  ,<span class="ot"> yellow  ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb17-5" title="5">  ,<span class="ot"> black   ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb17-6" title="6">  }</a></code></pre></div>
+<p>Такой конструктор всё ещё можно использовать как функцию с позиционными параметрами, но можно задавать значения полям по их именам:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb18-1" title="1">cmyk1,<span class="ot"> cmyk2 ::</span> <span class="dt">CMYK</span>  <span class="co">-- да, так можно!</span></a>
+<a class="sourceLine" id="cb18-2" title="2">cmyk1 <span class="ot">=</span> <span class="dt">CMYK</span> <span class="dv">100</span> <span class="dv">200</span> <span class="dv">100</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb18-3" title="3">cmyk2 <span class="ot">=</span> <span class="dt">CMYK</span></a>
+<a class="sourceLine" id="cb18-4" title="4">  { black <span class="ot">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb18-5" title="5">  , cyan <span class="ot">=</span> <span class="dv">100</span></a>
+<a class="sourceLine" id="cb18-6" title="6">  , magenta <span class="ot">=</span> <span class="dv">200</span></a>
+<a class="sourceLine" id="cb18-7" title="7">  , yellow <span class="ot">=</span> <span class="dv">100</span></a>
+<a class="sourceLine" id="cb18-8" title="8">  }</a></code></pre></div>
+<p>Для каждого поля генерируется функция-getter, извлекающая значение соответствующего поля:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb19-1" title="1"><span class="co">-- :t magenta</span></a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="co">-- magenta :: CMYK -&gt; Int</span></a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="ot">magenta200 ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb19-4" title="4">magenta200 <span class="ot">=</span> magenta cmyk2</a></code></pre></div>
+<p>Записи можно деконструировать позиционно, а можно использовать имена полей:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb20-1" title="1">magentish,<span class="ot"> yellowish ::</span> <span class="dt">CMYK</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb20-2" title="2">magentish (<span class="dt">CMYK</span> c _ y k) <span class="ot">=</span> c <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> k <span class="op">==</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb20-3" title="3">yellowish <span class="dt">CMYK</span>{cyan<span class="ot">=</span>c, yellow<span class="ot">=</span>y, black<span class="ot">=</span>k} <span class="ot">=</span></a>
+<a class="sourceLine" id="cb20-4" title="4">  c <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> y <span class="op">==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> k <span class="op">==</span> <span class="dv">0</span></a></code></pre></div>
+<p>Ещё стоит отметить возможность менять значения отдельных полей у уже готовых записей:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb21-1" title="1"><span class="ot">cmyk3 ::</span> <span class="dt">CMYK</span></a>
+<a class="sourceLine" id="cb21-2" title="2">cmyk3 <span class="ot">=</span> cmyk2{black <span class="ot">=</span> <span class="dv">42</span>}</a></code></pre></div>
+<p>В качестве типов полей можно указывать типы-аргументы конструктора типа:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb22-1" title="1"><span class="kw">data</span> <span class="dt">SimplePerson</span> extra <span class="ot">=</span> <span class="dt">SimplePerson</span></a>
+<a class="sourceLine" id="cb22-2" title="2">  {<span class="ot"> spName  ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb22-3" title="3">  ,<span class="ot"> spAge   ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb22-4" title="4">  ,<span class="ot"> spExtra ::</span> extra</a>
+<a class="sourceLine" id="cb22-5" title="5">  }</a></code></pre></div>
+<p>Поскольку функции-getters в рамках одного модуля находятся в одном пространстве имён, то использовать одно и то же имя поля в нескольких типов просто так не получится. Один из способов обхода этого ограничения заключается в задании всем полям записи одинакового префикса, часто получаемого из имени типа (акроним или просто camelCase), как я сделал выше.</p>
+<p>Если тип-произведение имеет в качестве поля <code>()</code>, то произведение перестаёт зависеть от этого поля: так как у <code>()</code> ровно одно значение, то и умножение на единицу ничего не меняет. А вот использование незаселённого типа в роли множителя делает весь тип-произведение незаселённым — это уже умножение на ноль!</p>
+<h2 id="типы-суммы">Типы-суммы</h2>
+<p>Тип-сумма описывается указанием нескольких конструкторов значений, разделённых символом <code>|</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb23-1" title="1"><span class="kw">data</span> <span class="dt">ChessColor</span> <span class="ot">=</span> <span class="dt">White</span> <span class="op">|</span> <span class="dt">Black</span></a></code></pre></div>
+<p>Мощность типа-суммы равна сумме мощностей слагаемых. Конструкторы значений без полей означают сами себя, поэтому и мощность <code>ChessColor</code> равна двум.</p>
+<p>Любой из конструкторов может иметь поля:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb24-1" title="1"><span class="kw">data</span> <span class="dt">Color</span> a <span class="ot">=</span> <span class="dt">Red</span> <span class="op">|</span> <span class="dt">Blue</span> <span class="op">|</span> <span class="dt">Other</span> a</a></code></pre></div>
+<p>Что интересно, в качестве поля одного из конструкторов-слагаемых может быть и незаселённый тип! Это не позволит применять данный конструктор и сумма уменьшится, поскольку одно из слагаемый будет помножено на ноль. Но другие конструкторы при этом могут быть доступны. Пример:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb25-1" title="1"><span class="ot">colorOfVoid ::</span> <span class="dt">Color</span> <span class="dt">Void&#39;</span></a>
+<a class="sourceLine" id="cb25-2" title="2">colorOfVoid <span class="ot">=</span> <span class="dt">Other</span> looped <span class="co">-- тут можно только зациклиться или упасть</span></a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb26-1" title="1"><span class="ot">isVoidColored ::</span> <span class="dt">Color</span> <span class="dt">Void&#39;</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb26-2" title="2">isVoidColored (<span class="dt">Other</span> _) <span class="ot">=</span> <span class="dt">True</span>  <span class="co">-- ленивость Haskell спасает!</span></a>
+<a class="sourceLine" id="cb26-3" title="3">isVoidColored _         <span class="ot">=</span> <span class="dt">False</span></a></code></pre></div>
+<p>Способов указать прямо в виде типа “либо число, либо строка” в Haskell нет, нужно каждый отдельный тип снабдить конструктором и собрать из них сумму. Это может показаться ограничением, но зато позволяет отличать разные по смыслу значения одинаковых типов:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb27-1" title="1"><span class="kw">data</span> <span class="dt">Name</span></a>
+<a class="sourceLine" id="cb27-2" title="2">  <span class="ot">=</span> <span class="dt">JustName</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb27-3" title="3">  <span class="op">|</span> <span class="dt">Id</span> <span class="dt">Int</span>  <span class="co">-- тут число</span></a>
+<a class="sourceLine" id="cb27-4" title="4">  <span class="op">|</span> <span class="dt">SSN</span> <span class="dt">Int</span> <span class="co">-- и тут число</span></a>
+<a class="sourceLine" id="cb27-5" title="5">  <span class="op">|</span> <span class="dt">Noname</span></a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb28-1" title="1"><span class="kw">data</span> <span class="dt">Person</span> extra <span class="ot">=</span> <span class="dt">Person</span></a>
+<a class="sourceLine" id="cb28-2" title="2">  {<span class="ot"> pName  ::</span> <span class="dt">Name</span>  <span class="co">-- сумма в роли множителя</span></a>
+<a class="sourceLine" id="cb28-3" title="3">  ,<span class="ot"> pAge   ::</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb28-4" title="4">  ,<span class="ot"> pExtra ::</span> extra</a>
+<a class="sourceLine" id="cb28-5" title="5">  }</a></code></pre></div>
+<p>Если же нужен тип “либо-либо”, но сумму заводить ну никак не хочется, то можно собрать “анонимный” тип из нескольких экземпляров Either — это такой встроенный типа вида:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb29-1" title="1"><span class="kw">data</span> <span class="dt">Either</span> a b</a>
+<a class="sourceLine" id="cb29-2" title="2">  <span class="ot">=</span> <span class="dt">Left</span> a  <span class="co">-- либо &quot;a&quot;</span></a>
+<a class="sourceLine" id="cb29-3" title="3">  <span class="op">|</span> <span class="dt">Right</span> b <span class="co">-- либо &quot;b&quot;</span></a></code></pre></div>
+<p>Так, например, <code>Person extra</code> из примера выше мог бы быть закодирован в виде</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb30-1" title="1"><span class="kw">type</span> <span class="dt">Person&#39;</span> extra <span class="ot">=</span> <span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">Either</span> <span class="dt">Int</span> (<span class="dt">Either</span> <span class="dt">Int</span> extra))</a></code></pre></div>
+<p>Здесь <code>type</code> означает не описание нового типа и не указание “типа типа”, а описание <em>псевдонима</em> (alias) для имеющегося сложного типа. Так вот, этот <code>Person'</code> <em>изоморфен</em> описанному выше <code>Person</code>, то есть имеет такую же мощность и всегда можно написать функцию, которая <em>однозначно</em> превратит любое значение одного типа в значение другого и наоборот без потери информации.</p>
+<p>Раз уж выше вспомнили про <code>Either</code>, то стоит упомянуть и <code>Maybe</code>, который выглядит примерно так:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">data</span> <span class="dt">Maybe</span> a <span class="ot">=</span> <span class="dt">Just</span> a <span class="op">|</span> <span class="dt">Nothing</span></a></code></pre></div>
+<p>Здесь <code>Nothing</code> символизирует отсутствие значения конкретного типа. То есть информация о вложенном типе <code>a</code> сохраняется, даже если значение <code>Maybe a</code> было построено с помощью конструктора <code>Nothing</code>:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb32-1" title="1"><span class="ot">noInts ::</span> <span class="dt">Maybe</span> <span class="dt">Int</span></a>
+<a class="sourceLine" id="cb32-2" title="2">noInts <span class="ot">=</span> <span class="dt">Nothing</span></a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb33-1" title="1"><span class="ot">noBools ::</span> <span class="dt">Maybe</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb33-2" title="2">noBools <span class="ot">=</span> <span class="dt">Nothing</span></a></code></pre></div>
+<p>Рассмотрим комплексный пример, добавив Maybe и ещё одну сумму к Person:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb34-1" title="1"><span class="co">-- питомец</span></a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="kw">data</span> <span class="dt">Pet</span></a>
+<a class="sourceLine" id="cb34-3" title="3">  <span class="ot">=</span> <span class="dt">Dog</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb34-4" title="4">  <span class="op">|</span> <span class="dt">Snail</span></a>
+<a class="sourceLine" id="cb34-5" title="5">  <span class="op">|</span> <span class="dt">Ants</span> <span class="dt">Int</span></a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb35-1" title="1"><span class="ot">bobWithAnts ::</span> <span class="dt">Person</span> <span class="dt">Pet</span></a>
+<a class="sourceLine" id="cb35-2" title="2">bobWithAnts <span class="ot">=</span> <span class="dt">Person</span></a>
+<a class="sourceLine" id="cb35-3" title="3">  { pName <span class="ot">=</span> <span class="dt">JustName</span> <span class="st">&quot;Bob&quot;</span></a>
+<a class="sourceLine" id="cb35-4" title="4">  , pAge <span class="ot">=</span> <span class="dv">100</span></a>
+<a class="sourceLine" id="cb35-5" title="5">  , pExtra <span class="ot">=</span> <span class="dt">Ants</span> <span class="dv">13</span></a>
+<a class="sourceLine" id="cb35-6" title="6">  }</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb36-1" title="1"><span class="kw">data</span> <span class="dt">User</span> a</a>
+<a class="sourceLine" id="cb36-2" title="2">  <span class="ot">=</span> <span class="dt">Registered</span> (<span class="dt">Person</span> a)</a>
+<a class="sourceLine" id="cb36-3" title="3">  <span class="op">|</span> <span class="dt">Guest</span></a></code></pre></div>
+<p>Эта функция будет проверять, что пользователь зарегистрирован и имеет хотя бы сотню муравьёв:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb37-1" title="1"><span class="ot">hasManyAnts ::</span> <span class="dt">User</span> (<span class="dt">Maybe</span> <span class="dt">Pet</span>) <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb37-2" title="2">hasManyAnts u <span class="ot">=</span> <span class="kw">case</span> u <span class="kw">of</span></a>
+<a class="sourceLine" id="cb37-3" title="3">  <span class="dt">Registered</span> (<span class="dt">Person</span> {pExtra <span class="ot">=</span> <span class="dt">Just</span> (<span class="dt">Ants</span> n)})</a>
+<a class="sourceLine" id="cb37-4" title="4">    <span class="op">|</span> n <span class="op">&gt;=</span> <span class="dv">100</span> <span class="ot">-&gt;</span> <span class="dt">True</span></a>
+<a class="sourceLine" id="cb37-5" title="5">  _            <span class="ot">-&gt;</span> <span class="dt">False</span></a></code></pre></div>
+<p>А вот пример модели системы Kanban:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb38-1" title="1"><span class="kw">data</span> <span class="dt">Desk</span> <span class="ot">=</span> <span class="dt">Desk</span></a>
+<a class="sourceLine" id="cb38-2" title="2">  {<span class="ot"> boards ::</span> [(<span class="dt">BoardName</span>, [<span class="dt">Card</span>])]</a>
+<a class="sourceLine" id="cb38-3" title="3">    <span class="co">-- ^ список именованных досок со списком карточек на каждой</span></a>
+<a class="sourceLine" id="cb38-4" title="4">  }</a></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb39-1" title="1"><span class="kw">data</span> <span class="dt">Card</span> <span class="ot">=</span></a>
+<a class="sourceLine" id="cb39-2" title="2">  <span class="dt">Card</span></a>
+<a class="sourceLine" id="cb39-3" title="3">  {<span class="ot"> key ::</span> <span class="dt">CardId</span></a>
+<a class="sourceLine" id="cb39-4" title="4">  ,<span class="ot"> title ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb39-5" title="5">  ,<span class="ot"> body ::</span> <span class="dt">String</span></a>
+<a class="sourceLine" id="cb39-6" title="6">  ,<span class="ot"> color ::</span> <span class="dt">Color</span> <span class="dt">Void&#39;</span></a>
+<a class="sourceLine" id="cb39-7" title="7">  ,<span class="ot"> author ::</span> <span class="dt">User</span> ()</a>
+<a class="sourceLine" id="cb39-8" title="8">  ,<span class="ot"> assignees ::</span> [<span class="dt">User</span> ()]</a>
+<a class="sourceLine" id="cb39-9" title="9">  }</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb40-1" title="1"><span class="kw">data</span> <span class="dt">Err</span> <span class="co">-- &quot;ожидаемые исключения&quot; в виде типа</span></a>
+<a class="sourceLine" id="cb40-2" title="2">  <span class="ot">=</span> <span class="dt">BadCardId</span> <span class="dt">CardId</span></a>
+<a class="sourceLine" id="cb40-3" title="3">  <span class="op">|</span> <span class="dt">BadBoardName</span> <span class="dt">BoardName</span></a></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb41-1" title="1"><span class="kw">newtype</span> <span class="dt">CardId</span> <span class="ot">=</span> <span class="dt">CardId</span> <span class="dt">Integer</span></a>
+<a class="sourceLine" id="cb41-2" title="2"><span class="kw">newtype</span> <span class="dt">BoardName</span> <span class="ot">=</span> <span class="dt">BoardName</span> <span class="dt">String</span></a></code></pre></div>
+<p>Функция переноса карточки с указанным CardId на доску с заданным именем, принимающая текущее состояние досок и возвращающая новое с учётом возможных ошибок:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb42-1" title="1"><span class="ot">move ::</span> <span class="dt">CardId</span> <span class="ot">-&gt;</span> <span class="dt">BoardName</span> <span class="ot">-&gt;</span> <span class="dt">Desk</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">Err</span> <span class="dt">Desk</span></a>
+<a class="sourceLine" id="cb42-2" title="2">move <span class="ot">=</span> <span class="fu">undefined</span></a></code></pre></div>
+<h2 id="newtype">newtype</h2>
+<p>Выше в примере были описаны два типа с помощью ключевого слова <code>newtype</code>. Это особый вид типов с ровно одним конструктором и ровно одним полем. Такие типы часто выступают в роли типобезопасной обёртки над имеющимся типом, но в процессе компиляции обёртка стирается. Таким образом достигается “бесплатность абстракции”: на этапе проверки типов каждый newtype выглядит как новый тип (отсюда и название), но тратить ресурсы на запаковку-распаковку не придётся. Зато и CardId с обычным Integer перепутать не получится, чего нельзя достичь использованием псевдонимов (те являются просто новыми именами для старых типов и увеличивают только читаемость).</p>
+<h2 id="незаселённые-типы-как-метки-для-фантомных-типов">Незаселённые типы как метки для фантомных типов</h2>
+<p>Рассмотрим ещё один пример: моделирование системы учёта единиц измерения при проведении вычислений.</p>
+<p>Это ядро системы: обёртка над числом, сохраняющая информацию о системе единиц и имени измеряемой величины.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">newtype</span> <span class="dt">MUnit</span> system name <span class="ot">=</span> <span class="dt">MUnit</span> <span class="dt">Float</span></a></code></pre></div>
+<p>Обратите внимание, что аргументы конструктора типов не используются на правой стороне. Такие типы-аргументы, не использующиеся на уровне конструкторов значений, называются <em>фантомными типами</em>.</p>
+<p>Так как фантомные типы не используются в качестве полей значений, то могут быть не заселены и будут выступать только как метки. Опишем несколько таких меток:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb44-1" title="1"><span class="kw">data</span> <span class="dt">Imperial</span> <span class="co">-- имперская система</span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="kw">data</span> <span class="dt">Metric</span>   <span class="co">-- метрическая система (СИ)</span></a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">data</span> <span class="dt">Distance</span> <span class="co">-- расстояние</span></a>
+<a class="sourceLine" id="cb45-2" title="2"><span class="kw">data</span> <span class="dt">Time</span>     <span class="co">-- время</span></a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb46-1" title="1"><span class="kw">data</span> <span class="dt">In</span> a b   <span class="co">-- соотношение &quot;В&quot; двух единиц измерения</span></a></code></pre></div>
+<p>Скорость или же “мера расстояния В меру времени”, зависит от конкретной системы</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">type</span> <span class="dt">Speed</span> system <span class="ot">=</span> <span class="dt">MUnit</span> system (<span class="dt">Distance</span> <span class="ot">`In`</span> <span class="dt">Time</span>)</a></code></pre></div>
+<p>В метрической системе расстояние измеряется в метрах</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb48-1" title="1"><span class="kw">type</span> <span class="dt">Meters</span> <span class="ot">=</span> <span class="dt">MUnit</span> <span class="dt">Metric</span> <span class="dt">Distance</span></a></code></pre></div>
+<p>Ну а секунды они везде секунды</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb49-1" title="1"><span class="kw">type</span> <span class="dt">Seconds</span> system <span class="ot">=</span> <span class="dt">MUnit</span> system <span class="dt">Time</span></a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb50-1" title="1"><span class="ot">speed ::</span> <span class="dt">Speed</span> <span class="dt">Metric</span></a>
+<a class="sourceLine" id="cb50-2" title="2">speed <span class="ot">=</span> <span class="dt">MUnit</span> <span class="dv">250</span> <span class="co">-- м/сек</span></a></code></pre></div>
+<p>Обобщённое умножение единиц измерения с сокращением числителя и знаменателя</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb51-1" title="1">mult</a>
+<a class="sourceLine" id="cb51-2" title="2"><span class="ot">  ::</span> <span class="dt">MUnit</span> s (a <span class="ot">`In`</span> b)</a>
+<a class="sourceLine" id="cb51-3" title="3">  <span class="ot">-&gt;</span> <span class="dt">MUnit</span> s b</a>
+<a class="sourceLine" id="cb51-4" title="4">  <span class="ot">-&gt;</span> <span class="dt">MUnit</span> s a</a>
+<a class="sourceLine" id="cb51-5" title="5">mult (<span class="dt">MUnit</span> s) (<span class="dt">MUnit</span> t) <span class="ot">=</span> <span class="dt">MUnit</span> (s <span class="op">*</span> t)</a></code></pre></div>
+<p>А это уже вычисление пройденного пути с контролем единиц измерения:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb52-1" title="1"><span class="ot">path ::</span> <span class="dt">Meters</span></a>
+<a class="sourceLine" id="cb52-2" title="2">path <span class="ot">=</span> speed <span class="ot">`mult`</span> time</a>
+<a class="sourceLine" id="cb52-3" title="3">  <span class="kw">where</span></a>
+<a class="sourceLine" id="cb52-4" title="4">    time <span class="ot">=</span> <span class="dt">MUnit</span> <span class="dv">4</span><span class="ot"> ::</span> <span class="dt">Seconds</span> system</a></code></pre></div>
+<p>Тип <code>In</code> можно было бы описать в виде оператора и вообще добавить операторов на уровне типов, что и позволяет расширение <code>TypeOperators</code>. Правда, тут есть одно ограничение: операторы-типы должны иметь имена, начинающиеся на “:”.</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode haskell literate"><code class="sourceCode haskell"><a class="sourceLine" id="cb53-1" title="1"><span class="kw">data</span> a <span class="op">:/</span> b</a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="kw">infixl</span> <span class="dv">7</span> <span class="op">:/</span></a>
+<a class="sourceLine" id="cb53-3" title="3"><span class="kw">type</span> <span class="dt">Acceleration</span> system <span class="ot">=</span> <span class="dt">Speed</span> system <span class="op">:/</span> <span class="dt">MUnit</span> system <span class="dt">Time</span></a></code></pre></div>
+<p>infixl тут указывает, что оператор <code>:/</code> является лево-ассоциативным и имеет приоритет “7” (в Haskell приоритеты могут быть от 0 до 9, чем больше, тем выше).</p>
+</body>
+</html>

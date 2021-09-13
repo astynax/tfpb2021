@@ -6,4 +6,7 @@ docs:
 	| xargs -n 1 make
 
 docs/%.html: %.lhs
-	pandoc --metadata pagetitle="$<" -s -o "$@" "$<"
+	pandoc --css "./styles.css" --metadata pagetitle="$<" -s -o "$@" "$<"
+
+clean:
+	rm docs/*.html

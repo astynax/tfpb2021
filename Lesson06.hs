@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Lesson06 where
@@ -122,9 +123,50 @@ maybeSum mx my = do
 
 -- TASK:
 
-data List a = Nil | Cons a (List a)
-newtype ZipList a = ZipList [a]
+data List a = Nil | Cons !a (List a) deriving (Show)
+newtype ZipList a
+  = ZipList { getZipList :: [a] }
+  deriving (Show)
 
 -- Need to implement Functor, Applicative, Monad
 
--- ZipList [f1, f2] <*> ZipList [x1, x2] == ZipList [f1 x1, f2, x2]
+instance Semigroup (List a) where
+  Nil       <> l  = l
+  Cons x xs <> ys = Cons x (xs <> ys)
+
+instance Monoid (List a) where
+  mempty = Nil
+
+instance Functor List where
+  fmap _ Nil = Nil
+  fmap f (Cons x xs) = Cons (f x) (fmap f xs)
+
+instance Applicative List where
+  pure :: a -> List a
+  pure x = Cons x Nil
+
+  (<*>) :: List (a -> b) -> List a -> List b
+  Nil       <*> _  = Nil
+  Cons f fs <*> xs = (f <$> xs) <> (fs <*> xs)
+
+instance Monad List where
+  (>>=) :: List a -> (a -> List b) -> List b
+  Nil       >>= _ = Nil
+  Cons x xs >>= f = f x <> (xs >>= f)
+
+-- ZipList [f1, f2] <*> ZipList [x1, x2]
+--   == ZipList [f1 x1, f2 x2]
+
+instance Functor ZipList where
+  fmap f (ZipList xs) = ZipList (fmap f xs)
+
+instance Applicative ZipList where
+  pure = ZipList . pure
+  -- ZipList [] <*> _         = ZipList []
+  -- ZipList _ <*> ZipList [] = ZipList []
+  -- ZipList (f:fs) <*> ZipList (x:xs) =
+  --   ZipList (f x : getZipList (ZipList fs <*> ZipList xs))
+  fs <*> xs =
+    ZipList (zipWith ($)
+             (getZipList fs)
+             (getZipList xs))

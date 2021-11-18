@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 -- | Reader, Writer, State
 
@@ -166,3 +167,25 @@ fibS n = evalState (go n) Map.empty
           let res = a + b
           modify $ Map.insert i res
           pure res
+
+-- Pretty Printer
+
+local f (Reader g) = Reader $ g . f
+
+putLn x = ask >>= \n -> pure $ putStrLn $ replicate n ' ' <> x
+
+instance Semigroup a => Semigroup (Reader r (IO a)) where
+  r1 <> r2 = Reader $ \env -> runReader r1 env <> runReader r2 env
+
+instance Monoid a => Monoid (Reader r (IO a)) where
+  mempty = pure mempty
+
+foo = mconcat
+  [ putLn "{"
+  , local (+ 2) $ mconcat
+    [ putLn "a"
+    , local (+ 1) $ putLn "b"
+    , putLn "c"
+    ]
+  , putLn "}"
+  ]

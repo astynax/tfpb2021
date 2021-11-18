@@ -170,12 +170,12 @@ fibS n = evalState (go n) Map.empty
 
 -- Pretty Printer
 
-local f (Reader g) = Reader $ g . f
+local f r = Reader $ runReader r . f
 
 putLn x = ask >>= \n -> pure $ putStrLn $ replicate n ' ' <> x
 
 instance Semigroup a => Semigroup (Reader r (IO a)) where
-  r1 <> r2 = Reader $ \env -> runReader r1 env <> runReader r2 env
+  r1 <> r2 = (<>) <$> r1 <*> r2
 
 instance Monoid a => Monoid (Reader r (IO a)) where
   mempty = pure mempty

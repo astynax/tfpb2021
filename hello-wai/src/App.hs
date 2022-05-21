@@ -16,11 +16,11 @@ import GHC.Generics
 import Control.Monad.Reader
 import Data.Text.Lazy
 
-data ApiCounter =
-  ApiCounter { visits :: Int }
-  deriving (Generic)
+newtype ApiCounter = ApiCounter
+  { visits :: Int
+  } deriving (Generic)
 
-data AppState = AppState
+newtype AppState = AppState
   { asVisits :: IORef Int
   }
 
@@ -32,7 +32,7 @@ makeApp = do
   let state = AppState
         { asVisits = v
         }
-  scottyAppT (flip runReaderT state) $ do
+  scottyAppT (`runReaderT` state) $ do
     pages
     api
 
@@ -41,7 +41,7 @@ type AppM a = ScottyT Text (ReaderT AppState IO) a
 pages :: AppM ()
 pages = do
   get "/" $ do
-    c <- asVisits <$> ask
+    c <- asks asVisits
     liftIO $ incCounter c
     html $ renderText $ page "Index" $ do
       h1_ "Hello world!"
@@ -52,7 +52,7 @@ pages = do
 api :: AppM ()
 api = do
   get "/api/v1/visits" $ do
-    c <- asVisits <$> ask
+    c <- asks asVisits
     v <- ApiCounter <$> liftIO (readIORef c)
     json v
 
@@ -67,6 +67,7 @@ page title content = doctypehtml_ $ do
   head_ $ do
     link_
       [ rel_ "stylesheet"
-      , href_ "https://unpkg.com/blocks.css/dist/blocks.min.css"]
+      , href_ "https://unpkg.com/blocks.css/dist/blocks.min.css"
+      ]
     title_ $ fromString title
   body_ content
